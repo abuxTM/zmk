@@ -4,9 +4,11 @@ const utils = @import("maskot/maskot.zig").texture;
 const shape = @import("maskot/maskot.zig").shape;
 const math = @import("maskot/maskot.zig").math;
 
+// TODO: Organiz
 // TODO: Add Texture Settings (Optional Transparency and etc)
 // TODO: Optimize shape drawing by only setting the uniforms if values actualy change instead of per-frame
 // TODO: Turn this into lib
+// FIX: C-GLM Math Library No Wok D:
 
 pub fn main() !void {
     try window.createWindow("Maskot", 1280, 720);
