@@ -14,8 +14,9 @@ pub const MKShader = struct {
             \\out vec2 TexCoord;
             \\uniform mat4 transform;
             \\uniform mat4 projection;
+            \\uniform mat4 view;
             \\void main() {
-            \\    gl_Position = projection * transform * vec4(aPos, 1.0);
+            \\    gl_Position = projection * view * transform * vec4(aPos, 1.0);
             \\    TexCoord = aUV;
             \\}
         };
@@ -25,11 +26,11 @@ pub const MKShader = struct {
             \\in vec2 TexCoord;
             \\out vec4 FragColor;
             \\uniform sampler2D aTexture;
-            \\uniform vec4 aColor = vec4(255, 255, 255, 255);
+            \\uniform vec4 aColor;
             \\uniform bool useTexture;
             \\void main() {
             \\    vec4 textureColor = texture(aTexture, TexCoord);
-            \\    if (textureColor.a < 0.1) discard;
+            \\    if (useTexture && textureColor.a < 0.1) discard;
             \\    FragColor = useTexture ? textureColor * (aColor / 255) : aColor / 255;
             \\}
         };

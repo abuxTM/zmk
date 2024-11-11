@@ -2,13 +2,17 @@ const std = @import("std");
 const gl = @cImport(@cInclude("glad.h"));
 const stb = @cImport(@cInclude("stb_image.h"));
 
+pub const TextureSettings = struct {
+    nearest: bool = true,
+};
+
 pub const Texture = struct {
     id: gl.GLuint,
     width: i32,
     height: i32,
 
     /// Load an image as an OpenGL texture.
-    pub fn fromFile(path: []const u8) !Texture {
+    pub fn fromFile(path: []const u8, settings: TextureSettings) !Texture {
         var width: i32 = 0;
         var height: i32 = 0;
         var channels: i32 = 0;
@@ -30,8 +34,8 @@ pub const Texture = struct {
         // Set texture parameters
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE);
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE);
-        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR);
-        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR);
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, if (settings.nearest) gl.GL_NEAREST else gl.GL_LINEAR);
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, if (settings.nearest) gl.GL_NEAREST else gl.GL_LINEAR);
 
         // Upload texture data
         gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, width, height, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, data);
@@ -47,13 +51,13 @@ pub const Texture = struct {
         };
     }
 
-    /// Bind the texture for use in OpenGL
+    /// Bind's the texture
     pub fn bind(self: *Texture, unit: gl.GLenum) void {
         gl.glActiveTexture(unit);
         gl.glBindTexture(gl.GL_TEXTURE_2D, self.id);
     }
 
-    /// Release the OpenGL texture when done
+    /// Delete texture
     pub fn destroy(self: *Texture) void {
         gl.glDeleteTextures(1, &self.id);
     }

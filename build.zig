@@ -39,15 +39,20 @@ pub fn build(b: *std.Build) void {
     test_step.dependOn(&run_exe_unit_tests.step);
 
     exe.linkLibC();
+    exe.linkLibCpp();
     exe.addIncludePath(b.path("src/vendors"));
+    exe.addIncludePath(b.path("src/vendors/imgui"));
 
     exe.addCSourceFiles(.{
         .root = b.path("src/vendors"),
-        .files = &.{ "glad.c", "stb_image.c" },
+        .files = &.{
+            "glad.c",
+            "stb_image.c",
+        },
         .flags = &.{"-g"},
     });
 
     exe.linkSystemLibrary("gl");
-    exe.linkSystemLibrary("glm");
+    exe.linkSystemLibrary("cglm");
     exe.linkSystemLibrary("glfw");
 }

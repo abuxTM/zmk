@@ -1,14 +1,14 @@
-const std = @import("std");
 pub const glfw = @cImport(@cInclude("GLFW/glfw3.h"));
+const std = @import("std");
+const glm = @cImport(@cInclude("cglm/cglm.h"));
 const gl = @cImport(@cInclude("glad.h"));
 
 const maskot = @import("maskot.zig");
-const math = @import("maskot.zig").math;
 
 var keyStates: [glfw.GLFW_KEY_LAST]bool = undefined;
 
 var window: *glfw.GLFWwindow = undefined;
-var size = math.Vector2D(f32).zero();
+var size = [2]f32{ 0, 0 };
 pub var shader: maskot.shader.MKShader = undefined;
 
 pub fn createWindow(title: [*c]const u8, width: i32, height: i32) !void {
@@ -18,7 +18,7 @@ pub fn createWindow(title: [*c]const u8, width: i32, height: i32) !void {
     glfw.glfwWindowHint(glfw.GLFW_CONTEXT_VERSION_MINOR, 3);
     glfw.glfwWindowHint(glfw.GLFW_OPENGL_PROFILE, glfw.GLFW_OPENGL_CORE_PROFILE);
 
-    size = math.Vector2D(f32).init(@floatFromInt(width), @floatFromInt(height));
+    size = [2]f32{ @floatFromInt(width), @floatFromInt(height) };
 
     window = glfw.glfwCreateWindow(width, height, title, null, null) orelse {
         glfw.glfwTerminate();
@@ -36,6 +36,7 @@ pub fn createWindow(title: [*c]const u8, width: i32, height: i32) !void {
     }
 
     gl.glViewport(0, 0, width, height);
+    gl.glEnable(gl.GL_DEPTH_TEST);
     gl.glEnable(gl.GL_BLEND);
 
     // ---
@@ -55,13 +56,15 @@ pub fn shouldClose() bool {
 }
 
 // ------------------------------
-pub fn getSize() math.Vector2D(f32) {
+pub fn getSize() [2]f32 {
     return size;
 }
 
 // ------------------------------
-pub fn getOrthoProjection() [4][4]f32 {
-    return math.ortho(size.x, size.y, -1, 1);
+pub fn getMousePosition() [2]f64 {
+    var pos = [2]f64{ 0, 0 };
+    glfw.glfwGetCursorPos(window, &pos[0], &pos[1]);
+    return pos;
 }
 
 // Sets background color
@@ -73,7 +76,7 @@ pub fn setClearColor(r: f32, g: f32, b: f32) void {
 // Clears the window for next buffer
 // ------------------------------
 pub fn beginDrawing() void {
-    glfw.glClear(glfw.GL_COLOR_BUFFER_BIT);
+    glfw.glClear(glfw.GL_COLOR_BUFFER_BIT | glfw.GL_DEPTH_BUFFER_BIT);
     glfw.glfwPollEvents();
 
     // Use the shader program
